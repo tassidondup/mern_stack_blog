@@ -4,13 +4,14 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
+const config = require("./config/key");
 const { User } = require("./models/user");
 
-const dbURI =
-  "mongodb+srv://tassi:tassi@donz4397@chatapp.uarcu.mongodb.net/<dbname>?retryWrites=true&w=majority";
+// const dbURI =
+//   "mongodb+srv://tassi:tassi@donz4397@chatapp.uarcu.mongodb.net/<dbname>?retryWrites=true&w=majority";
 
 mongoose
-  .connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(config.mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("DB Connected"))
   .catch((err) => console.log(err));
 
