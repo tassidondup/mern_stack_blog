@@ -5,10 +5,9 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
 const config = require("./config/key");
-const { User } = require("./models/user");
 
-// const dbURI =
-//   "mongodb+srv://tassi:tassi@donz4397@chatapp.uarcu.mongodb.net/<dbname>?retryWrites=true&w=majority";
+const { User } = require("./models/user");
+const { auth } = require("./middleware/auth");
 
 mongoose
   .connect(config.mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -24,12 +23,23 @@ app.get("/", (req, res) => {
   res.send("Hello World from Express App");
 });
 
-app.post("/api/users/register", (req, res) => {
+app.get("/api/user/auth", auth, (req, res) => {
+  res.status(200).json({
+    _id: req.user._id,
+    isAuth: true,
+    email: req.user.email,
+    name: req.user.name,
+    lastname: req.user.lastname,
+    role: req.user.role,
+  });
+});
+
+app.post("/api/user/register", (req, res) => {
   const user = new User(req.body);
 
   user.save((err, userData) => {
     if (err) return res.json({ success: false, err });
-    return res.status(200).json({ success: true });
+    return res.status(200).json({ success: true, userData });
   });
 });
 
@@ -57,6 +67,15 @@ app.post("/api/user/login", (req, res) => {
       res.cookie("x_auth", user.token).status(200).json({
         loginSuccess: true,
       });
+    });
+  });
+});
+
+app.get("/api/user/logout", auth, (req, res) => {
+  User.findOneAndUpdate({ _id: req.user._id }, { token: "" }, (err, doc) => {
+    if (err) return res.json({ success: false, err });
+    return res.status(200).send({
+      success: true,
     });
   });
 });
